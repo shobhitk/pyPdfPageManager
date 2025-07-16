@@ -93,24 +93,6 @@ class DocumentInputListWidget(QtWidgets.QListWidget):
         else:
             super().dropEvent(event)
 
-
-    def add_files(self, document_list: list, emit: bool = True):
-        """
-        Adds a list of document file paths to the QListWidget and the internal document list.
-        Emits the files_added signal if 'emit' is True.
-
-        Args:
-            document_list (list): A list of document file paths (strings) to add.
-            emit (bool, optional): If True, the files_added signal will be emitted. Defaults to True.
-        """
-        for f in document_list:
-            self.addItem(f)
-
-        self.document_list.extend(document_list)
-        self.document_list = list(set(self.document_list))  # Remove duplicates
-        if emit:
-            self.files_added.emit(document_list)
-
     
     def emit_document_selected(self, item: QtWidgets.QListWidgetItem):
         """

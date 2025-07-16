@@ -366,7 +366,7 @@ class DocumentOutputTreeWidget(QtWidgets.QTreeWidget):
         self.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.SingleSelection)
         self.setDragDropMode(QtWidgets.QAbstractItemView.DragDrop)
         self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
-        self.setHeaderLabels(["Current Page Number", "Source Page Number", "Source Document"])
+        self.setHeaderLabels(["New Page Number", "Source Page Number", "Source Document"])
         self.setDropIndicatorShown(False)
         
         # Initialize with undocumented container
@@ -465,8 +465,13 @@ class DocumentOutputTreeWidget(QtWidgets.QTreeWidget):
         new_parent.addChild(item)
         
         # Update page number and widget
-        item.set_page_number(new_parent.childCount())
-        item.set_page_widget()
+        if new_parent.text(0) == "__UNDOCUMENTED__":
+            # You can also use a hex code for dark gray, e.g., #A9A9A9
+            item.setForeground(0, QtGui.QColor("#A9A9A9"))
+        else:    
+            item.set_page_number(new_parent.childCount())
+            item.set_page_widget()
+
 
     def dragEnterEvent(self, event: QtGui.QDragMoveEvent) -> None:
         """
@@ -481,6 +486,7 @@ class DocumentOutputTreeWidget(QtWidgets.QTreeWidget):
             event.ignore()
             return
         super().dragEnterEvent(event)
+
 
     def dragMoveEvent(self, event: QtGui.QDragMoveEvent) -> None:
         """
@@ -518,6 +524,7 @@ class DocumentOutputTreeWidget(QtWidgets.QTreeWidget):
         # Show overlay with document name
         self.page_drop_overlay.set_overlay_rect(rect, drag_pos_item.text(0))
         super().dragMoveEvent(event)
+
 
     def dropEvent(self, event: QtGui.QDropEvent) -> None:
         """
@@ -563,12 +570,18 @@ class DocumentOutputTreeWidget(QtWidgets.QTreeWidget):
         self.expandAll()
         event.accept()
 
+
     def add_undocumented(self):
         """
         Add the special "undocumented" container for orphaned pages.
         """
         self.undocumented_item = DocumentItem(document="__UNDOCUMENTED__")
+
+        self.undocumented_item.setForeground(0, QtGui.QColor("#555555"))
+        self.undocumented_item.setForeground(0, QtGui.QColor("#333333"))
+
         self.insertTopLevelItem(0, self.undocumented_item)
+
 
     def load_setup(self, pdf_dict):
         """
@@ -607,18 +620,18 @@ class DocumentOutputTreeWidget(QtWidgets.QTreeWidget):
         # Expand all items to show structure
         self.expandAll()
 
+
     def find_doc_items(self, path):
         """
         Find document items matching a given path.
         
         Args:
             path (str): Path to search for
-            
-        Note:
-            This method appears to be incomplete in the original code.
         """
         root = self.invisibleRootItem()
         # TODO: Implement path-based document search
+
+
 
     def get_current_setup(self):
         """

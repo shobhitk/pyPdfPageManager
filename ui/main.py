@@ -66,18 +66,18 @@ class PyPdfPageManager(QtWidgets.QMainWindow):
         self.main_frame.layout().setContentsMargins(3,3,3,3)
         self.main_frame.layout().setSpacing(3)
 
-        self.input_output_splitter = QtWidgets.QSplitter()
-        self.input_output_splitter.setOrientation(QtCore.Qt.Vertical)
-        self.input_output_frame.layout().addWidget(self.input_output_splitter)
+        # self.input_output_splitter = QtWidgets.QSplitter()
+        # self.input_output_splitter.setOrientation(QtCore.Qt.Vertical)
         self.input_output_frame.layout().setContentsMargins(0,0,0,0)
         self.input_output_frame.layout().setSpacing(3)
 
-        self.document_input_list_widget = DocumentInputListWidget(parent_widget=self)
+        # self.document_input_list_widget = DocumentInputListWidget(parent_widget=self)
         self.document_output_tree_widget = DocumentOutputTreeWidget(parent_widget=self)
         with open(stylesheet_file, "r") as fh:
             self.document_output_tree_widget.setStyleSheet(fh.read())
-        self.input_output_splitter.addWidget(self.document_input_list_widget)
-        self.input_output_splitter.addWidget(self.document_output_tree_widget)
+        # self.input_output_splitter.addWidget(self.document_input_list_widget)
+        # self.input_output_splitter.addWidget(self.document_output_tree_widget)
+        self.input_output_frame.layout().addWidget(self.document_output_tree_widget)
 
         self.button_frame = QtWidgets.QFrame()
         self.button_frame.setLayout(QtWidgets.QHBoxLayout())
@@ -123,10 +123,10 @@ class PyPdfPageManager(QtWidgets.QMainWindow):
         self.action_new = QtGui.QAction("New")
         self.action_open = QtGui.QAction("Open")
         self.action_save = QtGui.QAction("Save")
-        self.action_add_pdfs = QtGui.QAction("Add PDFs")
-        self.action_remove_pdfs = QtGui.QAction("Remove PDFs")
-        self.action_merge_pdfs = QtGui.QAction("Merge PDFs")
-        self.action_split_pdfs = QtGui.QAction("Split PDFs")
+        self.action_add_docs = QtGui.QAction("Add PDFs")
+        # self.action_remove_docs = QtGui.QAction("Remove PDFs")
+        self.action_merge_docs = QtGui.QAction("Merge PDFs")
+        self.action_split_docs = QtGui.QAction("Split PDFs")
         self.action_close = QtGui.QAction("Close")
         self.action_new_document = QtGui.QAction("Create New Document")
         self.action_remove_document = QtGui.QAction("Remove Document")
@@ -138,13 +138,10 @@ class PyPdfPageManager(QtWidgets.QMainWindow):
         Actions defined in `setup_actions` are added to these menus.
         """
         self.file_menu = QtWidgets.QMenu("File")
-        self.file_menu.addAction(self.action_new)
-        self.file_menu.addAction(self.action_open)
-        self.file_menu.addAction(self.action_save)
-        self.file_menu.addAction(self.action_add_pdfs)
-        self.file_menu.addAction(self.action_remove_pdfs)
-        self.file_menu.addAction(self.action_merge_pdfs)
-        self.file_menu.addAction(self.action_split_pdfs)
+        self.file_menu.addAction(self.action_add_docs)
+        # self.file_menu.addAction(self.action_remove_docs)
+        self.file_menu.addAction(self.action_merge_docs)
+        self.file_menu.addAction(self.action_split_docs)
         self.file_menu.addAction(self.action_close)
         self.menu_bar.addMenu(self.file_menu)
 
@@ -160,29 +157,29 @@ class PyPdfPageManager(QtWidgets.QMainWindow):
         Defines the context menus (`input_menu` and `output_menu`) and populates
         them with relevant actions.
         """
-        self.document_input_list_widget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        # self.document_input_list_widget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.document_output_tree_widget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         
         self.input_menu = QtWidgets.QMenu()
-        self.input_menu.addAction(self.action_add_pdfs)
-        self.input_menu.addAction(self.action_remove_pdfs)
-        self.input_menu.addAction(self.action_merge_pdfs)
-        self.input_menu.addAction(self.action_split_pdfs)
+        self.input_menu.addAction(self.action_add_docs)
+        # self.input_menu.addAction(self.action_remove_docs)
+        self.input_menu.addAction(self.action_merge_docs)
+        self.input_menu.addAction(self.action_split_docs)
 
         self.output_menu = QtWidgets.QMenu()
         self.output_menu.addAction(self.action_new_document)
         self.output_menu.addAction(self.action_remove_document)
 
 
-    def show_input_context_menu(self, pos: QtCore.QPoint):
-        """
-        Displays the context menu for the document input list widget at the given position.
+    # def show_input_context_menu(self, pos: QtCore.QPoint):
+    #     """
+    #     Displays the context menu for the document input list widget at the given position.
 
-        Args:
-            pos (QtCore.QPoint): The position where the context menu was requested,
-                                 relative to the widget.
-        """
-        self.input_menu.exec(self.document_input_list_widget.mapToGlobal(pos))
+    #     Args:
+    #         pos (QtCore.QPoint): The position where the context menu was requested,
+    #                              relative to the widget.
+    #     """
+    #     self.input_menu.exec(self.document_input_list_widget.mapToGlobal(pos))
 
 
     def show_output_context_menu(self, pos: QtCore.QPoint):
@@ -202,24 +199,21 @@ class PyPdfPageManager(QtWidgets.QMainWindow):
         This includes menu actions, button clicks, and custom signals from
         the `DocumentInputListWidget` and `DocumentOutputTreeWidget`.
         """
-        self.document_input_list_widget.customContextMenuRequested.connect(self.show_input_context_menu)
+        # self.document_input_list_widget.customContextMenuRequested.connect(self.show_input_context_menu)
         self.document_output_tree_widget.customContextMenuRequested.connect(self.show_output_context_menu)
-        self.action_new.triggered.connect(self.create_new_setup)
-        self.action_open.triggered.connect(self.open_setup)
-        self.action_save.triggered.connect(self.save_setup)
 
-        self.action_add_pdfs.triggered.connect(self.add_pdfs)
-        self.action_remove_pdfs.triggered.connect(self.remove_pdfs)
+        self.action_add_docs.triggered.connect(self.add_docs)
+        self.action_remove_docs.triggered.connect(self.remove_docs)
 
-        self.action_merge_pdfs.triggered.connect(self.merge_pdfs)
-        self.action_split_pdfs.triggered.connect(self.split_pdfs)
+        self.action_merge_docs.triggered.connect(self.merge_docs)
+        self.action_split_docs.triggered.connect(self.split_docs)
         self.action_close.triggered.connect(self.close)
 
         self.action_new_document.triggered.connect(self.document_output_tree_widget.add_new_document)
         self.action_remove_document.triggered.connect(self.document_output_tree_widget.remove)
 
-        self.document_input_list_widget.files_added.connect(self.document_output_tree_widget.add_documents)
-        self.document_input_list_widget.document_selected.connect(self.show_document)
+        # self.document_input_list_widget.files_added.connect(self.document_output_tree_widget.add_documents)
+        # self.document_input_list_widget.document_selected.connect(self.show_document)
         self.document_output_tree_widget.page_selected.connect(self.show_page)
         self.browse_button.clicked.connect(self.set_output_folder)
         self.generate_button.clicked.connect(self.generate_documents)
@@ -251,65 +245,65 @@ class PyPdfPageManager(QtWidgets.QMainWindow):
         return self.output_line_edit.text()
 
 
-    def create_new_setup(self):
-        """
-        Initiates a new PDF processing setup.
-        If there are existing items in the output tree, it prompts the user to save
-        the current setup before clearing all input and output lists.
-        """
-        if self.document_output_tree_widget.has_items():
-            window_title = "Save File?"
-            confirm_text = "Do you want to save the current setup?"
-            result = self.show_confirm_dialog(window_title, confirm_text)
-            if result:
-                self.save_setup()
+    # def create_new_setup(self):
+    #     """
+    #     Initiates a new PDF processing setup.
+    #     If there are existing items in the output tree, it prompts the user to save
+    #     the current setup before clearing all input and output lists.
+    #     """
+    #     if self.document_output_tree_widget.has_items():
+    #         window_title = "Save File?"
+    #         confirm_text = "Do you want to save the current setup?"
+    #         result = self.show_confirm_dialog(window_title, confirm_text)
+    #         if result:
+    #             self.save_setup()
 
-        self.document_input_list_widget.clear()
-        self.document_output_tree_widget.clear()
-        self.document_output_tree_widget.add_undocumented()
+    #     self.document_input_list_widget.clear()
+    #     self.document_output_tree_widget.clear()
+    #     self.document_output_tree_widget.add_undocumented()
 
 
-    def open_setup(self):
-        """
-        Opens a file dialog to allow the user to load a previously saved JSON setup file.
-        Loads the input files and output document structure from the selected file.
-        """
-        setup_file, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self, # Use self as parent for dialog
-            "Open Setup file",
-            os.path.expanduser("~/Documents"),
-            "JSON (*.json)"
-        )
-        if setup_file:
-            pdf_dict = self.pdf_engine.load_setup(setup_file)
-            output_dir = pdf_dict.get('output_dir', os.path.expanduser("~/Documents"))
-            input_files = self.pdf_engine.extract_input_files(pdf_dict)
-            self.output_line_edit.setText(output_dir)
-            self.document_input_list_widget.add_files(input_files, emit=False)
-            self.document_output_tree_widget.load_setup(pdf_dict)
+    # def open_setup(self):
+    #     """
+    #     Opens a file dialog to allow the user to load a previously saved JSON setup file.
+    #     Loads the input files and output document structure from the selected file.
+    #     """
+    #     setup_file, _ = QtWidgets.QFileDialog.getOpenFileName(
+    #         self, # Use self as parent for dialog
+    #         "Open Setup file",
+    #         os.path.expanduser("~/Documents"),
+    #         "JSON (*.json)"
+    #     )
+    #     if setup_file:
+    #         pdf_dict = self.pdf_engine.load_setup(setup_file)
+    #         output_dir = pdf_dict.get('output_dir', os.path.expanduser("~/Documents"))
+    #         input_files = self.pdf_engine.extract_input_files(pdf_dict)
+    #         self.output_line_edit.setText(output_dir)
+    #         self.document_input_list_widget.add_files(input_files, emit=False)
+    #         self.document_output_tree_widget.load_setup(pdf_dict)
 
-        self.status_bar.showMessage("Setup Loaded.")
+    #     self.status_bar.showMessage("Setup Loaded.")
         
 
-    def save_setup(self):
-        """
-        Saves the current document output setup to a JSON file chosen by the user.
-        """
-        data = self.document_output_tree_widget.get_current_setup()
-        data['output_dir'] = self.get_output_folder() # Include output dir in saved setup
-        file_dialog = QtWidgets.QFileDialog(self)
-        file_dialog.setAcceptMode(QtWidgets.QFileDialog.AcceptSave)
-        file_dialog.setNameFilter("JSON Files (*.json)")
-        if file_dialog.exec_() == QtWidgets.QDialog.Accepted:
-            file_name = file_dialog.selectedFiles()[0]
-            if not file_name.lower().endswith(".json"):
-                file_name += ".json"
-            self.pdf_engine.save_setup(data, file_name)
+    # def save_setup(self):
+    #     """
+    #     Saves the current document output setup to a JSON file chosen by the user.
+    #     """
+    #     data = self.document_output_tree_widget.get_current_setup()
+    #     data['output_dir'] = self.get_output_folder() # Include output dir in saved setup
+    #     file_dialog = QtWidgets.QFileDialog(self)
+    #     file_dialog.setAcceptMode(QtWidgets.QFileDialog.AcceptSave)
+    #     file_dialog.setNameFilter("JSON Files (*.json)")
+    #     if file_dialog.exec_() == QtWidgets.QDialog.Accepted:
+    #         file_name = file_dialog.selectedFiles()[0]
+    #         if not file_name.lower().endswith(".json"):
+    #             file_name += ".json"
+    #         self.pdf_engine.save_setup(data, file_name)
 
-        self.status_bar.showMessage("PDF Setup Saved.")
+    #     self.status_bar.showMessage("PDF Setup Saved.")
 
     
-    def add_pdfs(self):
+    def add_docs(self):
         """
         Opens a file dialog to allow the user to select PDF files to add.
         Adds the selected PDF files to the input document list.
@@ -321,42 +315,44 @@ class PyPdfPageManager(QtWidgets.QMainWindow):
             "PDF (*.pdf)"
         )
         if file_names:
-            self.document_input_list_widget.add_files(file_names)
+            self.document_list.extend(document_list)
+            self.document_list = list(set(self.document_list)) 
+            self.document_output_tree_widget.add_documents(file_names)
             self.status_bar.showMessage("Files Added.")
 
-    def remove_pdfs(self):
-        """
-        Removes selected PDF files from the input list and clears any associated
-        pages from the output tree widget. Also clears the document viewer.
-        """
-        selected_pdfs = self.document_input_list_widget.selectedItems()
-        if not selected_pdfs:
-            self.status_bar.showMessage("No PDF files selected to remove.")
-            return
+    # def remove_docs(self):
+    #     """
+    #     Removes selected PDF files from the input list and clears any associated
+    #     pages from the output tree widget. Also clears the document viewer.
+    #     """
+    #     selected_docs = self.document_input_list_widget.selectedItems()
+    #     if not selected_docs:
+    #         self.status_bar.showMessage("No PDF files selected to remove.")
+    #         return
 
-        for item in selected_pdfs:
-            item_text = item.text()
-            item_index = self.document_input_list_widget.row(item)
-            self.document_input_list_widget.takeItem(item_index)
+    #     for item in selected_docs:
+    #         item_text = item.text()
+    #         item_index = self.document_input_list_widget.row(item)
+    #         self.document_input_list_widget.takeItem(item_index)
 
-            # clear all pages belonging to that document from the document_output_tree_widget
-            doc_item_in_output = self.document_output_tree_widget.find_doc_items(item_text)
-            if doc_item_in_output:
-                self.document_output_tree_widget.remove([doc_item_in_output], source_deleted=True, bypass_confirm=True)
+    #         # clear all pages belonging to that document from the document_output_tree_widget
+    #         doc_item_in_output = self.document_output_tree_widget.find_doc_items(item_text)
+    #         if doc_item_in_output:
+    #             self.document_output_tree_widget.remove([doc_item_in_output], source_deleted=True, bypass_confirm=True)
 
-        self.clear_document_from_view()        
-        self.status_bar.showMessage("Files Removed.")
+    #     self.clear_document_from_view()        
+    #     self.status_bar.showMessage("Files Removed.")
 
 
-    def merge_pdfs(self):
+    def merge_docs(self):
         """
         Generates a merge setup based on all documents currently in the input list.
         Clears the current output tree setup and loads the new merge setup.
         """
-        document_list = self.document_input_list_widget.get_document_list()
-        if not document_list:
-            self.status_bar.showMessage("No PDFs to merge. Add documents to the input list first.")
-            return
+        # document_list = self.document_input_list_widget.get_document_list()
+        # if not document_list:
+        #     self.status_bar.showMessage("No PDFs to merge. Add documents to the input list first.")
+        #     return
 
         output_folder = self.get_output_folder()
         merge_dict = self.pdf_engine.generate_merged_dict(document_list, output_folder)
@@ -364,7 +360,7 @@ class PyPdfPageManager(QtWidgets.QMainWindow):
         self.document_output_tree_widget.load_setup(merge_dict)
         self.status_bar.showMessage("Merge setup created.")
 
-    def split_pdfs(self):
+    def split_docs(self):
         """
         Generates a split setup for each document currently in the input list.
         Clears the current output tree setup and loads the new split setup.
@@ -536,7 +532,7 @@ class PyPdfPageManager(QtWidgets.QMainWindow):
 
         self.status_bar.showMessage("Generating PDFs...")
         try:
-            result = self.pdf_engine.generate_pdfs(output_dict)
+            result = self.pdf_engine.generate_docs(output_dict)
             if result:
                 self.show_success_dialog(result)
                 self.status_bar.showMessage("PDFs generated successfully.")
