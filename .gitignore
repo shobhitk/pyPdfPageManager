@@ -1,0 +1,47 @@
+# macOS specific files
+.DS_Store
+
+# Python bytecode and cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Distribution / build files
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+.pytest_cache/
+.coverage
+htmlcov/
+.nox/
+.tox/
+
+# IDE specific files (common ones)
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+
+# Jupyter Notebook files
+.ipynb_checkpoints/
+
+# Miscellaneous
+*~
+*.bak
+*.swp
+*.swo
