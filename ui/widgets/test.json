@@ -1,0 +1,11 @@
+{
+    "output_folder": "output",
+    "doc_1.pdf":{
+        "1": {"1": "a/b/doc_1.pdf"},
+        "2": {"1": "b/c/doc_2.pdf"}
+    },
+    "doc_2.pdf": {
+        "1":{"3": "a/b/doc_1.pdf"},
+        "2":{"4": "b/c/doc_2.pdf"}
+    }
+}
