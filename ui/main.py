@@ -1,4 +1,5 @@
-"""Summary
+"""
+Main application window for PyPdfPageManager, a tool for managing and manipulating PDF pages.
 """
 # # This Python file uses the following encoding: utf-8
 
@@ -22,11 +23,22 @@ stylesheet_file = os.path.dirname(__file__) + "/stylesheet.qss"
 
 class PyPdfPageManager(QtWidgets.QMainWindow):
 
-    """Summary
+    """
+    The main window class for the PDF Page Manager application.
+    It provides a user interface for adding, organizing, merging, splitting,
+    and generating PDF documents.
     """
     
-    def __init__(self, parent=None):
-        """Summary
+    def __init__(self, parent: QtWidgets.QWidget = None):
+        """
+        Initializes the PyPdfPageManager application window.
+
+        Sets up the main window layout, initializes widgets, loads the PDF engine,
+        and establishes connections between UI elements and application logic.
+
+        Args:
+            parent (QtWidgets.QWidget, optional): The parent widget of this window.
+                                                 Defaults to None.
         """
         super().__init__(parent=parent)
         self.setObjectName("PyPdfPageManager")
@@ -104,7 +116,9 @@ class PyPdfPageManager(QtWidgets.QMainWindow):
 
 
     def setup_actions(self):
-        """Summary
+        """
+        Sets up QAction objects for various menu and context menu operations.
+        These actions will be linked to specific functions in `make_connections`.
         """
         self.action_new = QtGui.QAction("New")
         self.action_open = QtGui.QAction("Open")
@@ -119,10 +133,11 @@ class PyPdfPageManager(QtWidgets.QMainWindow):
 
 
     def setup_menu_bar(self):
-        """Summary
+        """
+        Configures the application's menu bar with 'File' and 'Output Edit' menus.
+        Actions defined in `setup_actions` are added to these menus.
         """
         self.file_menu = QtWidgets.QMenu("File")
-        self.file_menu.addAction(self.action_new)
         self.file_menu.addAction(self.action_new)
         self.file_menu.addAction(self.action_open)
         self.file_menu.addAction(self.action_save)
@@ -140,7 +155,10 @@ class PyPdfPageManager(QtWidgets.QMainWindow):
 
 
     def setup_context_menus(self):
-        """Summary
+        """
+        Enables custom context menus for the input list and output tree widgets.
+        Defines the context menus (`input_menu` and `output_menu`) and populates
+        them with relevant actions.
         """
         self.document_input_list_widget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.document_output_tree_widget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
@@ -156,26 +174,33 @@ class PyPdfPageManager(QtWidgets.QMainWindow):
         self.output_menu.addAction(self.action_remove_document)
 
 
-    def show_input_context_menu(self, pos):
-        """Summary
-        
+    def show_input_context_menu(self, pos: QtCore.QPoint):
+        """
+        Displays the context menu for the document input list widget at the given position.
+
         Args:
-            pos (TYPE): Description
+            pos (QtCore.QPoint): The position where the context menu was requested,
+                                 relative to the widget.
         """
         self.input_menu.exec(self.document_input_list_widget.mapToGlobal(pos))
 
 
-    def show_output_context_menu(self, pos):
-        """Summary
-        
+    def show_output_context_menu(self, pos: QtCore.QPoint):
+        """
+        Displays the context menu for the document output tree widget at the given position.
+
         Args:
-            pos (TYPE): Description
+            pos (QtCore.QPoint): The position where the context menu was requested,
+                                 relative to the widget.
         """
         self.output_menu.exec(self.document_output_tree_widget.mapToGlobal(pos))
 
     
     def make_connections(self):
-        """Summary
+        """
+        Connects UI signals to their respective slot functions.
+        This includes menu actions, button clicks, and custom signals from
+        the `DocumentInputListWidget` and `DocumentOutputTreeWidget`.
         """
         self.document_input_list_widget.customContextMenuRequested.connect(self.show_input_context_menu)
         self.document_output_tree_widget.customContextMenuRequested.connect(self.show_output_context_menu)
@@ -202,28 +227,35 @@ class PyPdfPageManager(QtWidgets.QMainWindow):
 
     
     def set_output_folder(self):
-        """Summary
+        """
+        Opens a directory dialog to allow the user to select an output folder.
+        The selected path is then displayed in the output line edit.
         """
         result = QtWidgets.QFileDialog.getExistingDirectory(
-            None, 
+            self, # Use self as parent for dialog
             'Select Directory',
             os.path.expanduser("~/Documents"),
             options=QtWidgets.QFileDialog.ShowDirsOnly)
 
-        self.output_line_edit.setText(result)
+        if result:
+            self.output_line_edit.setText(result)
 
 
-    def get_output_folder(self):
-        """Summary
-        
+    def get_output_folder(self) -> str:
+        """
+        Retrieves the currently set output folder path from the line edit.
+
         Returns:
-            TYPE: Description
+            str: The path to the output folder.
         """
         return self.output_line_edit.text()
 
 
     def create_new_setup(self):
-        """Summary
+        """
+        Initiates a new PDF processing setup.
+        If there are existing items in the output tree, it prompts the user to save
+        the current setup before clearing all input and output lists.
         """
         if self.document_output_tree_widget.has_items():
             window_title = "Save File?"
@@ -238,17 +270,19 @@ class PyPdfPageManager(QtWidgets.QMainWindow):
 
 
     def open_setup(self):
-        """Summary
+        """
+        Opens a file dialog to allow the user to load a previously saved JSON setup file.
+        Loads the input files and output document structure from the selected file.
         """
         setup_file, _ = QtWidgets.QFileDialog.getOpenFileName(
-            None, 
-            "Open Setup file", 
+            self, # Use self as parent for dialog
+            "Open Setup file",
             os.path.expanduser("~/Documents"),
             "JSON (*.json)"
         )
         if setup_file:
             pdf_dict = self.pdf_engine.load_setup(setup_file)
-            output_dir = pdf_dict['output_dir']
+            output_dir = pdf_dict.get('output_dir', os.path.expanduser("~/Documents"))
             input_files = self.pdf_engine.extract_input_files(pdf_dict)
             self.output_line_edit.setText(output_dir)
             self.document_input_list_widget.add_files(input_files, emit=False)
@@ -258,136 +292,171 @@ class PyPdfPageManager(QtWidgets.QMainWindow):
         
 
     def save_setup(self):
-        """Summary
+        """
+        Saves the current document output setup to a JSON file chosen by the user.
         """
         data = self.document_output_tree_widget.get_current_setup()
+        data['output_dir'] = self.get_output_folder() # Include output dir in saved setup
         file_dialog = QtWidgets.QFileDialog(self)
         file_dialog.setAcceptMode(QtWidgets.QFileDialog.AcceptSave)
         file_dialog.setNameFilter("JSON Files (*.json)")
         if file_dialog.exec_() == QtWidgets.QDialog.Accepted:
             file_name = file_dialog.selectedFiles()[0]
+            if not file_name.lower().endswith(".json"):
+                file_name += ".json"
             self.pdf_engine.save_setup(data, file_name)
 
-        self.status_bar.showMessage("PDF Setup Changed.")
+        self.status_bar.showMessage("PDF Setup Saved.")
 
     
     def add_pdfs(self):
-        """Summary
+        """
+        Opens a file dialog to allow the user to select PDF files to add.
+        Adds the selected PDF files to the input document list.
         """
         file_names, _ = QtWidgets.QFileDialog.getOpenFileNames(
-            None, 
-            "Open files", 
+            self, # Use self as parent for dialog
+            "Open files",
             os.path.expanduser("~/Documents"),
             "PDF (*.pdf)"
         )
-        self.document_input_list_widget.add_files(file_names)
-        self.status_bar.showMessage("Files Added.")
+        if file_names:
+            self.document_input_list_widget.add_files(file_names)
+            self.status_bar.showMessage("Files Added.")
 
     def remove_pdfs(self):
-        """Summary
+        """
+        Removes selected PDF files from the input list and clears any associated
+        pages from the output tree widget. Also clears the document viewer.
         """
         selected_pdfs = self.document_input_list_widget.selectedItems()
+        if not selected_pdfs:
+            self.status_bar.showMessage("No PDF files selected to remove.")
+            return
+
         for item in selected_pdfs:
+            item_text = item.text()
             item_index = self.document_input_list_widget.row(item)
-            removed_item = self.document_input_list_widget.takeItem(item_index)
+            self.document_input_list_widget.takeItem(item_index)
 
             # clear all pages belonging to that document from the document_output_tree_widget
-            item = self.document_output_tree_widget.find_doc_items(removed_item.text())
-            if item:
-                self.document_output_tree_widget.remove([item], source_deleted=True, bypass_confirm=True)
+            doc_item_in_output = self.document_output_tree_widget.find_doc_items(item_text)
+            if doc_item_in_output:
+                self.document_output_tree_widget.remove([doc_item_in_output], source_deleted=True, bypass_confirm=True)
 
         self.clear_document_from_view()        
         self.status_bar.showMessage("Files Removed.")
 
 
     def merge_pdfs(self):
-        """Summary
+        """
+        Generates a merge setup based on all documents currently in the input list.
+        Clears the current output tree setup and loads the new merge setup.
         """
         document_list = self.document_input_list_widget.get_document_list()
+        if not document_list:
+            self.status_bar.showMessage("No PDFs to merge. Add documents to the input list first.")
+            return
+
         output_folder = self.get_output_folder()
         merge_dict = self.pdf_engine.generate_merged_dict(document_list, output_folder)
         self.document_output_tree_widget.clear_setup()
         self.document_output_tree_widget.load_setup(merge_dict)
+        self.status_bar.showMessage("Merge setup created.")
 
     def split_pdfs(self):
-        """Summary
+        """
+        Generates a split setup for each document currently in the input list.
+        Clears the current output tree setup and loads the new split setup.
         """
         document_list = self.document_input_list_widget.get_document_list()
+        if not document_list:
+            self.status_bar.showMessage("No PDFs to split. Add documents to the input list first.")
+            return
+
         output_folder = self.get_output_folder()
         split_dict = self.pdf_engine.generate_split_dict(document_list, output_folder)
         self.document_output_tree_widget.clear_setup()
         self.document_output_tree_widget.load_setup(split_dict)
+        self.status_bar.showMessage("Split setup created.")
 
     
     def open_about(self):
-        """Summary
+        """
+        Opens the project's GitHub URL in the default web browser.
         """
         webbrowser.open(github_url)
 
 
     def clear_document_from_view(self):
-        """Summary
+        """
+        Unloads any currently displayed PDF from the document viewer.
         """
         self.pdf_view.unload_pdf()
 
     
-    def show_document(self, document):
-        """Summary
-        
-        Args:
-            document (TYPE): Description
+    def show_document(self, document_path: str):
         """
-        self.pdf_view.open(document)
+        Opens and displays the specified PDF document in the document viewer.
+
+        Args:
+            document_path (str): The file path of the PDF document to display.
+        """
+        self.pdf_view.open(document_path)
 
     
-    def show_page(self, document, page_number):
-        """Summary
-        
-        Args:
-            document (TYPE): Description
-            page_number (TYPE): Description
+    def show_page(self, document_path: str, page_number: int):
         """
-        self.pdf_view.open(document, page_number)
-        
+        Opens the specified PDF document and navigates to the given page number
+        in the document viewer.
 
-
-    def show_success_dialog(self, result):
-        """Summary
-        
         Args:
-            result (TYPE): Description
+            document_path (str): The file path of the PDF document.
+            page_number (int): The page number to display (1-indexed).
+        """
+        self.pdf_view.open(document_path, page_number)
+        
+
+    def show_success_dialog(self, generated_files: list):
+        """
+        Displays a success message box listing the PDF files that were successfully generated.
+
+        Args:
+            generated_files (list): A list of file paths (strings) of the generated PDFs.
         """
         msg = QtWidgets.QMessageBox(self)
         msg.setIcon(QtWidgets.QMessageBox.Information)
         msg.setWindowTitle("Success!")
-        msg.setText("These PDF files were successfully generated:\n" + "\n".join(result))
+        msg.setText("These PDF files were successfully generated:\n" + "\n".join(generated_files))
         msg.adjustSize()
-        msg.show()
+        msg.exec_() # Use exec_() for modal dialogs
 
     
-    def show_error_dialog(self, message):
-        """Summary
-        
+    def show_error_dialog(self, message: str):
+        """
+        Displays an error message box with the given message.
+
         Args:
-            message (TYPE): Description
+            message (str): The error message to display.
         """
         msg = QtWidgets.QMessageBox(self)
         msg.setIcon(QtWidgets.QMessageBox.Critical)
         msg.setWindowTitle("Error!")
         msg.setText(message)
         msg.adjustSize()
-        msg.show()
+        msg.exec_() # Use exec_() for modal dialogs
 
 
-    def show_confirm_dialog(self, window_title, confirm_text):
-        """Summary
-        
+    def show_confirm_dialog(self, window_title: str, confirm_text: str) -> bool:
+        """
+        Displays a confirmation dialog with 'OK' and 'Cancel' buttons.
+
         Args:
-            window_title (TYPE): Description
-            confirm_text (TYPE): Description
-        
+            window_title (str): The title of the confirmation dialog.
+            confirm_text (str): The message displayed in the confirmation dialog.
+
         Returns:
-            TYPE: Description
+            bool: True if the user clicks 'OK', False otherwise.
         """
         msg = QtWidgets.QMessageBox(self)
         msg.setIcon(QtWidgets.QMessageBox.Warning)
@@ -399,47 +468,82 @@ class PyPdfPageManager(QtWidgets.QMainWindow):
         return result == QtWidgets.QMessageBox.Ok
 
 
-    def confirm_output(self, output_dict):
-        """Summary
-        
-        Args:
-            output_dict (TYPE): Description
-        
-        Returns:
-            TYPE: Description
+    def confirm_output(self, output_dict: dict) -> bool:
         """
-        output_dir = output_dict['output_dir']
+        Confirms with the user about overwriting existing output files and prevents
+        overwriting input files.
+
+        Args:
+            output_dict (dict): A dictionary representing the output setup, including
+                                'output_dir' and keys for each output document.
+
+        Returns:
+            bool: True if the output operation can proceed, False otherwise.
+        """
+        output_dir = output_dict.get('output_dir', '')
+        if not output_dir:
+            self.show_error_dialog("Output directory is not set. Please select an output directory.")
+            return False
+
         files_exist = []
-        # check if output file is same as one of the input files. 
-        # We cannot allow this as we would be overwriting a file as its being read.
+        input_files = self.document_input_list_widget.get_document_list()
+
         for doc_key in output_dict.keys():
-            out_file = output_dir + "/" + doc_key + ".pdf"
-            if os.path.exists(out_file):
-                files_exist.append(out_file)
-                if out_file in self.document_input_list_widget.get_document_list():
-                    self.show_error_dialog("Output files cannot be the same as the input files. Please choose a different output directory or change the Output file names.")
-                    return
+            if doc_key == 'output_dir': # Skip the output_dir entry
+                continue
+            
+            out_file = Path(output_dir) / f"{doc_key}.pdf"
+            
+            # Check if output file would overwrite an input file
+            if str(out_file) in input_files:
+                self.show_error_dialog(
+                    "Output files cannot be the same as the input files. "
+                    "Please choose a different output directory or change the Output file names."
+                )
+                return False
+            
+            # Check if output file already exists
+            if out_file.exists():
+                files_exist.append(str(out_file))
         
         if files_exist:
             window_title = "Overwrite Files?"
-            confirm_text = "These files already exist,\n" + \
-                            "\n".join(files_exist) + \
-                            "\nAre you sure you want to continue?"
+            confirm_text = (
+                "These files already exist:\n" +
+                "\n".join(files_exist) +
+                "\nAre you sure you want to continue and overwrite them?"
+            )
             return self.show_confirm_dialog(window_title, confirm_text)
 
         return True
 
     def generate_documents(self):
-        """Summary
-        
-        Returns:
-            TYPE: Description
+        """
+        Triggers the PDF generation process based on the current output tree setup.
+        Confirms with the user about potential file overwrites before proceeding.
+        Displays success or error messages after generation.
         """
         output_dict = self.document_output_tree_widget.get_current_setup()
+
+        if not output_dict:
+            self.status_bar.showMessage("No output documents defined to generate.")
+            self.show_error_dialog("No output documents defined. Please create new documents or add pages to existing ones in the Output Documents panel.")
+            return
+
         confirm = self.confirm_output(output_dict)
         if not confirm:
             return
 
-        result = self.pdf_engine.generate_pdfs(output_dict)
-        if result:
-            self.show_success_dialog(result)
+        self.status_bar.showMessage("Generating PDFs...")
+        try:
+            result = self.pdf_engine.generate_pdfs(output_dict)
+            if result:
+                self.show_success_dialog(result)
+                self.status_bar.showMessage("PDFs generated successfully.")
+            else:
+                self.show_error_dialog("PDF generation completed with no output files. Check your setup.")
+                self.status_bar.showMessage("PDF generation completed.")
+        except Exception as e:
+            logger.exception("Error during PDF generation.")
+            self.show_error_dialog(f"An error occurred during PDF generation: {e}")
+            self.status_bar.showMessage("PDF generation failed.")
