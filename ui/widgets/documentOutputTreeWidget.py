@@ -145,6 +145,13 @@ class DocumentItem(PageDocumentBaseItem):
         return child_gen
 
 
+    def update_pages(self):
+        index = 1
+        for child in self.get_children():
+            child.set_page_widget()
+            child.setSelected(False)
+
+
 class PageItem(PageDocumentBaseItem):
     """
     Tree widget item representing a page within a document.
@@ -186,7 +193,7 @@ class PageItem(PageDocumentBaseItem):
         self.page_number_spin = None
         
         # Set display text for tree columns
-        self.setText(0, str(self.source_page_number))
+        self.setText(1, str(self.source_page_number))
         self.setText(2, self.source_document)
 
     def set_page_number(self, page_number):
@@ -261,10 +268,11 @@ class PageItem(PageDocumentBaseItem):
 
         # Set current value and connect change handler
         self.page_number_spin.setValue(self.page_number)
+
         self.page_number_spin.valueChanged.connect(self.set_pages)
         
         # Add widget to tree widget
-        self.treeWidget().setItemWidget(self, 1, self.page_number_spin)
+        self.treeWidget().setItemWidget(self, 0, self.page_number_spin)
 
     def set_pages(self, value):
         """
@@ -333,7 +341,7 @@ class DocumentOutputTreeWidget(QtWidgets.QTreeWidget):
         page_selected (str, int): Emitted when a page is selected (document_name, page_number)
     """
     
-    page_selected = QtCore.Signal(str, int)
+    page_selected = QtCore.Signal(tuple)
 
     def __init__(self, parent_widget, parent=None):
         """
@@ -378,6 +386,7 @@ class DocumentOutputTreeWidget(QtWidgets.QTreeWidget):
         # Ensure overlay is on top
         self.page_drop_overlay.raise_()
 
+
     def resizeEvent(self, event):
         """
         Handle widget resize events by updating the overlay size.
@@ -389,12 +398,14 @@ class DocumentOutputTreeWidget(QtWidgets.QTreeWidget):
         # Keep overlay size in sync with tree widget
         self.page_drop_overlay.resize(self.size())
 
+
     def clear_setup(self):
         """
         Clear all items from the tree and reinitialize with undocumented container.
         """
         self.clear()
         self.add_undocumented()
+
 
     def add_documents(self, documents):
         """
@@ -414,6 +425,7 @@ class DocumentOutputTreeWidget(QtWidgets.QTreeWidget):
         self.clear_setup()
         self.load_setup(current_pdf_dict)
 
+
     def emit_page_selected(self, item):
         """
         Emit page selection signal when a page item is clicked.
@@ -424,7 +436,8 @@ class DocumentOutputTreeWidget(QtWidgets.QTreeWidget):
         # Only emit signal for page items (items with parents)
         if not item.parent():
             return
-        self.page_selected.emit(item.source_document, item.source_page_number)
+        self.page_selected.emit((item.source_document, int(item.source_page_number)))
+
 
     def _get_total_item_height(self, item, item_height):
         """
@@ -449,6 +462,7 @@ class DocumentOutputTreeWidget(QtWidgets.QTreeWidget):
             
         return total_height
 
+
     def _reparent_item(self, item, new_parent):
         """
         Move an item from its current parent to a new parent.
@@ -463,7 +477,6 @@ class DocumentOutputTreeWidget(QtWidgets.QTreeWidget):
         
         # Add to new parent
         new_parent.addChild(item)
-        
         # Update page number and widget
         if new_parent.text(0) == "__UNDOCUMENTED__":
             # You can also use a hex code for dark gray, e.g., #A9A9A9
@@ -563,8 +576,16 @@ class DocumentOutputTreeWidget(QtWidgets.QTreeWidget):
         drop_target_item.addChild(dropped_item)
         
         # Update page number and widget
-        dropped_item.set_page_number(drop_target_item.childCount())
-        dropped_item.set_page_widget()
+        if drop_target_item.text(0) != "__UNDOCUMENTED__":
+            dropped_item.set_page_number(drop_target_item.childCount())
+            dropped_item.set_page_widget()
+
+        else:
+            dropped_item.setForeground(1, QtGui.QColor("#333333"))
+            dropped_item.setForeground(2, QtGui.QColor("#333333"))
+
+
+        old_parent.update_pages()
 
         # Expand all items to show changes
         self.expandAll()
@@ -577,7 +598,6 @@ class DocumentOutputTreeWidget(QtWidgets.QTreeWidget):
         """
         self.undocumented_item = DocumentItem(document="__UNDOCUMENTED__")
 
-        self.undocumented_item.setForeground(0, QtGui.QColor("#555555"))
         self.undocumented_item.setForeground(0, QtGui.QColor("#333333"))
 
         self.insertTopLevelItem(0, self.undocumented_item)
@@ -606,8 +626,8 @@ class DocumentOutputTreeWidget(QtWidgets.QTreeWidget):
             self.addTopLevelItem(document_item)
             
             # Add pages to document
-            for page_key in sorted(doc_val.keys()):
-                page_val = doc_val[page_key]
+            for page_key in sorted([int(key) for key in doc_val.keys()]):
+                page_val = doc_val[str(page_key)]
                 source_page_num = next(iter(page_val))
                 page_item = PageItem(
                     source_page_number=source_page_num,
@@ -666,7 +686,7 @@ class DocumentOutputTreeWidget(QtWidgets.QTreeWidget):
             page_dict = {}
             for page_index in range(page_count):
                 page_item = document_item.child(page_index)
-                page_dict[page_index + 1] = {
+                page_dict[str(page_index + 1)] = {
                     page_item.get_source_page_num(): page_item.get_source_document()
                 }
                 
