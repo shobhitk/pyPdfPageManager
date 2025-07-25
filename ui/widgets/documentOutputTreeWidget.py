@@ -249,7 +249,7 @@ class PageItem(PageDocumentBaseItem):
         """
         return self.source_page_number
 
-    def set_page_widget(self):
+    def set_page_widget(self, block_signals=False):
         """
         Create and configure the spinbox widget for page number adjustment.
         
@@ -267,12 +267,18 @@ class PageItem(PageDocumentBaseItem):
             sibling.page_number_spin.setRange(1, parent_child_count)
 
         # Set current value and connect change handler
+        if block_signals:
+            self.page_number_spin.blockSignals(True)
+
         self.page_number_spin.setValue(self.page_number)
+        if block_signals:
+            self.page_number_spin.blockSignals(False)
 
         self.page_number_spin.valueChanged.connect(self.set_pages)
         
         # Add widget to tree widget
         self.treeWidget().setItemWidget(self, 0, self.page_number_spin)
+
 
     def set_pages(self, value):
         """
@@ -295,6 +301,7 @@ class PageItem(PageDocumentBaseItem):
         
         # Update page number and widget
         page_item.set_page_number(value)
+
         page_item.set_page_widget()
         
         # Update all sibling page numbers
@@ -321,6 +328,7 @@ class PageItem(PageDocumentBaseItem):
         # Sort children and select the moved item
         parent_item.sortChildren(0, QtCore.Qt.AscendingOrder)
         page_item.setSelected(True)
+        # self.parent().setFocus()
 
 
 class DocumentOutputTreeWidget(QtWidgets.QTreeWidget):
@@ -369,7 +377,17 @@ class DocumentOutputTreeWidget(QtWidgets.QTreeWidget):
                 height: {self.item_height}px; 
             }}
         """)
+
+        self.up_action = QtGui.QAction("Move_Up", self)
+        self.up_action.setShortcut(QtGui.QKeySequence(QtCore.Qt.ShiftModifier | QtCore.Qt.Key_Up))
+        self.up_action.triggered.connect(self.move_item_up)
+        self.addAction(self.up_action)
         
+        self.down_action = QtGui.QAction("Move_Down", self)
+        self.down_action.setShortcut(QtGui.QKeySequence(QtCore.Qt.ShiftModifier | QtCore.Qt.Key_Down))
+        self.down_action.triggered.connect(self.move_item_down)
+        self.addAction(self.down_action)
+
         # Configure selection and drag-drop behavior
         self.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.SingleSelection)
         self.setDragDropMode(QtWidgets.QAbstractItemView.DragDrop)
@@ -397,6 +415,22 @@ class DocumentOutputTreeWidget(QtWidgets.QTreeWidget):
         super().resizeEvent(event)
         # Keep overlay size in sync with tree widget
         self.page_drop_overlay.resize(self.size())
+
+
+    def move_item_up(self, item):
+        """
+        QAction to move a page up with Shift + Up key sequence
+        """
+        item = self.selectedItems()[0]
+        item.page_number_spin.setValue(item.page_number_spin.value() - 1)
+
+
+    def move_item_down(self, item):
+        """
+        QAction to move a page up with Shift + Up key sequence
+        """
+        item = self.selectedItems()[0]
+        item.page_number_spin.setValue(item.page_number_spin.value() + 1)
 
 
     def clear_setup(self):
