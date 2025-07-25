@@ -513,8 +513,9 @@ class DocumentOutputTreeWidget(QtWidgets.QTreeWidget):
         new_parent.addChild(item)
         # Update page number and widget
         if new_parent.text(0) == "__UNDOCUMENTED__":
-            # You can also use a hex code for dark gray, e.g., #A9A9A9
-            item.setForeground(0, QtGui.QColor("#A9A9A9"))
+            item.setForeground(1, QtGui.QColor("#333333"))
+            item.setForeground(2, QtGui.QColor("#333333"))
+
         else:    
             item.set_page_number(new_parent.childCount())
             item.set_page_widget()
@@ -807,13 +808,8 @@ class DocumentOutputTreeWidget(QtWidgets.QTreeWidget):
                 continue
 
             if item.parent():
-                # This is a page item
-                if not source_deleted:
-                    # Move to undocumented container
-                    self._reparent_item(item, self.undocumented_item)
-                else:
-                    # Remove completely
-                    item.parent().removeChild(item)
+                self._reparent_item(item, self.undocumented_item)
+
             else:
                 # This is a document item
                 # Move all child pages to undocumented container

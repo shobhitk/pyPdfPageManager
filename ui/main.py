@@ -381,7 +381,6 @@ class PyPdfPageManager(QtWidgets.QMainWindow):
             return False
 
         files_exist = []
-        input_files = self.document_input_list_widget.get_document_list()
 
         for doc_key in output_dict.keys():
             if doc_key == 'output_dir': # Skip the output_dir entry
@@ -390,7 +389,7 @@ class PyPdfPageManager(QtWidgets.QMainWindow):
             out_file = Path(output_dir) / f"{doc_key}.pdf"
             
             # Check if output file would overwrite an input file
-            if str(out_file) in input_files:
+            if str(out_file) in self.document_list:
                 self.show_error_dialog(
                     "Output files cannot be the same as the input files. "
                     "Please choose a different output directory or change the Output file names."

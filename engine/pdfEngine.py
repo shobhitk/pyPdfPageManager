@@ -172,7 +172,7 @@ class PdfEngine():
         return files
 
     
-    def generate_pdfs(self, pdf_dict):
+    def generate_docs(self, pdf_dict):
         """Method to generate PDF files based on PDF Setup dict.
 
         Args:
