@@ -1,0 +1,79 @@
+# .github/workflows/release.yml
+# This workflow will build your Python application into a standalone executable
+# using PyInstaller and then create a GitHub Release with the executable attached.
+
+name: Build and Release Python App
+
+on:
+  push:
+    tags:
+      - 'v1.0.1'
+
+jobs:
+  build_and_release:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4 # Checks out your repository code
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+
+    - name: Create and activate virtual environment
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+
+    - name: Upgrade pip
+      run: |
+        source venv/bin/activate
+        pip install --upgrade pip
+
+    - name: Install dependencies from requirements.txt
+      run: |
+        source venv/bin/activate
+        # IMPORTANT: Ensure your 'requirements.txt' file is committed to your repository.
+        # This step assumes 'requirements.txt' exists in the root of your repo.
+        # The content of your requirements.txt:
+        # altgraph==0.17.4
+        # cffi==1.17.1
+        # cryptography==45.0.3
+        # macholib==1.16.3
+        # packaging==25.0
+        # pycparser==2.22
+        # pyinstaller==6.14.2
+        # pyinstaller-hooks-contrib==2025.6
+        # pypdf==5.5.0
+        # PySide6==6.8.1.1
+        # PySide6_Addons==6.8.1.1
+        # PySide6_Essentials==6.8.1.1
+        # setuptools==75.1.0
+        # shiboken6==6.8.1.1
+        # wheel==0.44.0
+        pip install -r requirements.txt
+
+    - name: Run PyInstaller
+      run: |
+        source venv/bin/activate
+        # Build the executable. Adjust --windowed if it's a CLI app.
+        pyinstaller --onefile --windowed --name "PDF Page Editor" "launch.py"
+
+    - name: Upload PyInstaller artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: PDF-Page-Editor-Executable
+        path: dist/PDF Page Editor # Path to the generated executable in the 'dist' folder
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      if: startsWith(github.ref, 'refs/tags/') # Only create release if triggered by a tag push
+      with:
+        files: dist/PDF Page Editor # Attach the executable to the release
+        name: Release ${{ github.ref_name }} # Release name will be the tag name (e.g., v1.0.0)
+        body: |
+          Automated release for version ${{ github.ref_name }}.
+          Download the executable below.
+        prerelease: false # Set to true for pre-releases
