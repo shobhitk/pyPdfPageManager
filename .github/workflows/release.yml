@@ -2,12 +2,12 @@
 # This workflow will build your Python application into a standalone executable
 # using PyInstaller and then create a GitHub Release with the executable attached.
 
-name: Build and Release Python App
+name: Build and Release PDF Page Editor
 
 on:
   push:
     tags:
-      - 'v1.0.1'
+      - 'v1.0.5'
 
 jobs:
   build_and_release:
@@ -72,8 +72,8 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/') # Only create release if triggered by a tag push
       with:
         files: dist/PDF Page Editor # Attach the executable to the release
-        name: Release ${{ github.ref_name }} # Release name will be the tag name (e.g., v1.0.0)
+        name: Release v1.0.5 # Release name will be the tag name (e.g., v1.0.0)
         body: |
-          Automated release for version ${{ github.ref_name }}.
+          Automated release for version v1.0.5
           Download the executable below.
         prerelease: false # Set to true for pre-releases
