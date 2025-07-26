@@ -17,8 +17,6 @@ from engine.pdfEngine import PdfEngine
 
 github_url = "https://github.com/shobhitk/pyPdfPageManager"
 
-stylesheet_file = os.path.dirname(__file__) + "/stylesheet.qss"
-
 
 class PyPdfPageManager(QtWidgets.QMainWindow):
 
@@ -73,8 +71,26 @@ class PyPdfPageManager(QtWidgets.QMainWindow):
 
         # self.document_input_list_widget = DocumentInputListWidget(parent_widget=self)
         self.document_output_tree_widget = DocumentOutputTreeWidget(parent_widget=self)
-        with open(stylesheet_file, "r") as fh:
-            self.document_output_tree_widget.setStyleSheet(fh.read())
+        self.document_output_tree_widget.setStyleSheet("""
+QTreeWidget::item{
+    height: 20px 0;
+}
+
+QSplitter::handle {
+    border: 1px solid #333333;
+    height: 2px;
+    background-color: #303030;
+    border-radius: 4px;
+}
+
+QSplitter::handle:pressed {
+    background: #6187ac;
+}
+QMenuBar {
+    margin-bottom: 1px;
+    padding-bottom:1px;
+}
+            """)
         # self.input_output_splitter.addWidget(self.document_input_list_widget)
         # self.input_output_splitter.addWidget(self.document_output_tree_widget)
         input_output_frame.layout().addWidget(self.document_output_tree_widget)
