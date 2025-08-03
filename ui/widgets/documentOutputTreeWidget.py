@@ -15,7 +15,6 @@ Classes:
 import os
 import sys
 from pathlib import Path
-from pprint import pprint
 
 import logging
 logger = logging.getLogger(__name__)
@@ -405,6 +404,7 @@ class DocumentOutputTreeWidget(QtWidgets.QTreeWidget):
         self.page_drop_overlay.raise_()
 
 
+
     def resizeEvent(self, event):
         """
         Handle widget resize events by updating the overlay size.
@@ -529,6 +529,10 @@ class DocumentOutputTreeWidget(QtWidgets.QTreeWidget):
             event (QtGui.QDragMoveEvent): Drag enter event
         """
         # Only allow dragging of page items (items with parents)
+        if event.mimeData().hasUrls():
+            event.accept()
+            return
+
         drag_item = self.selectedItems()[0] if self.selectedItems() else None
         if not drag_item or not drag_item.parent():
             event.ignore()
@@ -543,6 +547,10 @@ class DocumentOutputTreeWidget(QtWidgets.QTreeWidget):
         Args:
             event (QtGui.QDragMoveEvent): Drag move event
         """
+        if event.mimeData().hasUrls():
+            event.accept()
+            return
+
         drag_pos_item = self.itemAt(event.position().toPoint())
         dragged_item = self.currentItem()
 
@@ -582,6 +590,17 @@ class DocumentOutputTreeWidget(QtWidgets.QTreeWidget):
             event (QtGui.QDropEvent): Drop event
         """
         # Clear overlay
+
+        if event.mimeData().hasUrls():
+            event.accept()
+            files = [
+                str(url.toLocalFile()) for url in event.mimeData().urls()
+                if not os.path.isdir(str(url.toLocalFile())) and str(url.toLocalFile()).endswith(".pdf")
+            ]
+            self.add_documents(files)
+            return
+
+        
         self.page_drop_overlay.set_overlay_rect(QtCore.QRect())
         
         # Get drop target

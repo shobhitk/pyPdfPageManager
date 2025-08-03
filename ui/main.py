@@ -64,12 +64,9 @@ class PyPdfPageManager(QtWidgets.QMainWindow):
         main_frame.layout().setContentsMargins(3,3,3,3)
         main_frame.layout().setSpacing(3)
 
-        # self.input_output_splitter = QtWidgets.QSplitter()
-        # self.input_output_splitter.setOrientation(QtCore.Qt.Vertical)
         input_output_frame.layout().setContentsMargins(0,0,0,0)
         input_output_frame.layout().setSpacing(3)
 
-        # self.document_input_list_widget = DocumentInputListWidget(parent_widget=self)
         self.document_output_tree_widget = DocumentOutputTreeWidget(parent_widget=self)
         self.document_output_tree_widget.setStyleSheet("""
 QTreeWidget::item{
@@ -91,8 +88,6 @@ QMenuBar {
     padding-bottom:1px;
 }
             """)
-        # self.input_output_splitter.addWidget(self.document_input_list_widget)
-        # self.input_output_splitter.addWidget(self.document_output_tree_widget)
         input_output_frame.layout().addWidget(self.document_output_tree_widget)
 
         button_frame = QtWidgets.QFrame()
@@ -139,7 +134,6 @@ QMenuBar {
         self.action_open = QtGui.QAction("Open")
         self.action_save = QtGui.QAction("Save")
         self.action_add_docs = QtGui.QAction("Add PDFs")
-        # self.action_remove_docs = QtGui.QAction("Remove PDFs")
         self.action_merge_docs = QtGui.QAction("Merge PDFs")
         self.action_split_docs = QtGui.QAction("Split PDFs")
         self.action_close = QtGui.QAction("Close")
@@ -198,11 +192,9 @@ QMenuBar {
         This includes menu actions, button clicks, and custom signals from
         the `DocumentInputListWidget` and `DocumentOutputTreeWidget`.
         """
-        # self.document_input_list_widget.customContextMenuRequested.connect(self.show_input_context_menu)
         self.document_output_tree_widget.customContextMenuRequested.connect(self.show_output_context_menu)
 
         self.action_add_docs.triggered.connect(self.add_docs)
-        # self.action_remove_docs.triggered.connect(self.remove_docs)
 
         self.action_merge_docs.triggered.connect(self.merge_docs)
         self.action_split_docs.triggered.connect(self.split_docs)
@@ -211,8 +203,6 @@ QMenuBar {
         self.action_new_document.triggered.connect(self.document_output_tree_widget.add_new_document)
         self.action_remove_document.triggered.connect(self.document_output_tree_widget.remove)
 
-        # self.document_input_list_widget.files_added.connect(self.document_output_tree_widget.add_documents)
-        # self.document_input_list_widget.document_selected.connect(self.show_document)
         self.document_output_tree_widget.page_selected.connect(self.show_page)
         self.browse_button.clicked.connect(self.set_output_folder)
         self.generate_button.clicked.connect(self.generate_documents)
@@ -280,7 +270,6 @@ QMenuBar {
         Generates a split setup for each document currently in the input list.
         Clears the current output tree setup and loads the new split setup.
         """
-        # document_list = self.document_input_list_widget.get_document_list()
         if not self.document_list:
             self.status_bar.showMessage("No PDFs to split. Add documents to the input list first.")
             return
@@ -355,7 +344,7 @@ QMenuBar {
         msg.setWindowTitle("Error!")
         msg.setText(message)
         msg.adjustSize()
-        msg.exec_() # Use exec_() for modal dialogs
+        msg.exec_()
 
 
     def show_confirm_dialog(self, window_title: str, confirm_text: str) -> bool:
@@ -426,6 +415,7 @@ QMenuBar {
             return self.show_confirm_dialog(window_title, confirm_text)
 
         return True
+
 
     def generate_documents(self):
         """
